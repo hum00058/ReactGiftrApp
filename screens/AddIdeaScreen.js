@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import {
   View,
@@ -7,45 +7,94 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Button
+  Image
 } from 'react-native'
-import { CameraView, CameraType, useCameraPermissions } from 'expo-camera'
+import { CameraView, Camera } from 'expo-camera'
+import { useNavigation } from '@react-navigation/native'
 
-export default function AddIdeaScreen() {
-  const [permission, requestCameraPermission] = useCameraPermissions()
+export default function AddIdeaScreen({ route }) {
+  const { person } = route.params
+  const [type, setType] = useState('back')
   const cameraRef = useRef(null)
   const [name, setName] = useState('')
+  const [bio, setBio] = useState('')
+  const [image, setImage] = useState(null)
+
+  const navigation = useNavigation()
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Add Idea',
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 15 }}
+          onPress={() => {
+            navigation.navigate('People')
+          }}
+        >
+          <View>
+            <Text>Save Idea</Text>
+          </View>
+        </TouchableOpacity>
+      )
+    })
+    requestPermissions()
+  })
 
   async function requestPermissions() {
-    const cameraStatus = await requestCameraPermission()
+    const cameraStatus = await Camera.requestCameraPermissionsAsync()
     if (!cameraStatus.granted) {
       Alert.alert('Error', 'Camera permission is required')
       return false
     }
+    console.log('Camera permission granted')
     return true
   }
 
   async function takePicture() {
-    const hasPermission = await requestPermissions()
-    if (!hasPermission) {
-      Alert.alert('Error', 'Camera permission is required')
-      return
+    if (!cameraRef.current) return
+    try {
+      const photo = await cameraRef.current.takePictureAsync()
+      setImage(photo.uri)
+      console.log(photo)
+    } catch (error) {
+      console.log(error)
     }
   }
 
   return (
     <SafeAreaProvider>
       <SafeAreaView>
-        <View>
-          <Text>Add Idea:</Text>
+        <View style={styles.container}>
+          <Text style={styles.text}>Add Idea for {person.name}:</Text>
           <TextInput
-            placeholder="Idea"
+            placeholder="Name..."
             value={name}
             onChangeText={(text) => setName(text)}
-            style={styles.input}
+            style={styles.nameInput}
           />
-          <CameraView ref={cameraRef}></CameraView>
-          <Button title="Take Picture" onPress={takePicture} />
+          <TextInput
+            editable
+            multiline
+            placeholder="Details..."
+            value={bio}
+            onChangeText={(text) => setBio(text)}
+            style={styles.bioInput}
+          />
+          {image ? (
+            <Image
+              source={{ uri: image }}
+              style={{ width: 200, height: 200 }}
+            />
+          ) : (
+            <CameraView style={styles.camera} ref={cameraRef} type={type}>
+              <TouchableOpacity onPress={takePicture}>
+                <View style={styles.pictureButton}>
+                  <Text>Take Picture</Text>
+                </View>
+              </TouchableOpacity>
+            </CameraView>
+          )}
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -54,30 +103,41 @@ export default function AddIdeaScreen() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center'
+    padding: 20
   },
-  message: {
-    textAlign: 'center',
-    paddingBottom: 10
+  nameInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 5
+  },
+  bioInput: {
+    height: 100,
+    borderColor: 'gray',
+    borderWidth: 1,
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10
   },
   camera: {
-    flex: 1
+    width: 'auto',
+    height: 350,
+    borderRadius: 5
   },
-  buttonContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: 'transparent',
-    margin: 64
-  },
-  button: {
-    flex: 1,
-    alignSelf: 'flex-end',
-    alignItems: 'center'
+  pictureButton: {
+    display: 'flex',
+    alignSelf: 'center',
+    alignItems: 'center',
+    top: 290,
+    width: 150,
+    padding: 10,
+    backgroundColor: 'white',
+    borderRadius: 5
   },
   text: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white'
+    fontWeight: 'bold'
   }
 })

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react'
 import {
   View,
-  Pressable,
+  TouchableOpacity,
   Text,
   FlatList,
   SafeAreaView,
@@ -17,18 +17,22 @@ export default function IdeaScreen({ route }) {
   const person = people.find((person) => person.id === id)
   const navigation = useNavigation()
 
+  console.log(person)
+
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: 'Ideas for ' + person.name,
+      headerTitle: person.name,
       headerRight: () => (
-        <Pressable
+        <TouchableOpacity
           style={{ marginRight: 15 }}
-          onPress={() => navigation.navigate('AddIdeas')}
+          onPress={() => {
+            navigation.navigate('AddIdea', { person: person })
+          }}
         >
           <View>
             <Text>Add Idea</Text>
           </View>
-        </Pressable>
+        </TouchableOpacity>
       )
     })
   }, [])
@@ -36,23 +40,24 @@ export default function IdeaScreen({ route }) {
   return (
     <SafeAreaProvider>
       <SafeAreaView>
-        <View>
-          {person.ideas ? (
-            <View style={styles.peopleAlert}>
-              <Text>No people saved yet.</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={person.ideas}
-              keyExtractor={(item) => item.id}
-              renderItem={({ item }) => (
-                <Pressable>
-                  <Text>{item.text}</Text>
-                </Pressable>
-              )}
-            />
-          )}
-        </View>
+        {person.ideas.length === 0 ? (
+          <View style={styles.peopleAlert}>
+            <Text>
+              No gift ideas saved yet, press
+              <Text style={{ fontWeight: 700 }}> 'Add Idea'</Text> to create.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            data={person.ideas}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity>
+                <Text>{item.text}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        )}
       </SafeAreaView>
     </SafeAreaProvider>
   )

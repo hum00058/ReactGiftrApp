@@ -21,7 +21,8 @@ export const PeopleProvider = ({ children }) => {
     const newPerson = {
       id: randomUUID(),
       name,
-      dob
+      dob,
+      ideas: []
     }
     const updatedPeople = [...people, newPerson]
     console.log(updatedPeople)
@@ -43,7 +44,7 @@ export const PeopleProvider = ({ children }) => {
           name,
           image
         }
-        return { ...person, ideas: [...person.ideas, newIdea] }
+        person.ideas.push(newIdea)
       }
       return person
     })
