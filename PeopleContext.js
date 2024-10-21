@@ -36,12 +36,13 @@ export const PeopleProvider = ({ children }) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople))
   }
 
-  const addIdea = async (id, name, image) => {
+  const addIdea = async (id, name, details, image) => {
     const updatedPeople = people.map((person) => {
       if (person.id === id) {
         const newIdea = {
           id: randomUUID(),
           name,
+          details,
           image
         }
         person.ideas.push(newIdea)
@@ -52,9 +53,20 @@ export const PeopleProvider = ({ children }) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople))
   }
 
+  const deleteIdea = async (personId, ideaId) => {
+    const updatedPeople = people.map((person) => {
+      if (person.id === personId) {
+        person.ideas = person.ideas.filter((idea) => idea.id !== ideaId)
+      }
+      return person
+    })
+    setPeople(updatedPeople)
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedPeople))
+  }
+
   return (
     <PeopleContext.Provider
-      value={{ people, addPerson, deletePerson, addIdea }}
+      value={{ people, addPerson, deletePerson, addIdea, deleteIdea }}
     >
       {children}
     </PeopleContext.Provider>

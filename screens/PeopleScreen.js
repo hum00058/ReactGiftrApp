@@ -93,8 +93,7 @@ export default function PeopleScreen() {
           'Are you sure you want to delete this person?',
           [
             {
-              text: 'Cancel',
-              onPress: () => console.log('Delete person cancelled.')
+              text: 'Cancel'
             },
             {
               text: 'Delete',
@@ -171,9 +170,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: '#ccc',
     backgroundColor: '#fff'
-  },
-  listItem_Info: {
-    justifyContent: 'space-between'
   },
   listItem_Button: {
     backgroundColor: '#000',

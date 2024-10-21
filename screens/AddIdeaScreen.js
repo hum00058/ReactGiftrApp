@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useContext } from 'react'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import {
   View,
@@ -7,17 +7,20 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-  Image
+  Image,
+  ImageBackground
 } from 'react-native'
+import PeopleContext from '../PeopleContext'
 import { CameraView, Camera } from 'expo-camera'
 import { useNavigation } from '@react-navigation/native'
 
 export default function AddIdeaScreen({ route }) {
   const { person } = route.params
-  const [type, setType] = useState('back')
+  const { addIdea } = useContext(PeopleContext)
+  const [facing, setFacing] = useState('back')
   const cameraRef = useRef(null)
   const [name, setName] = useState('')
-  const [bio, setBio] = useState('')
+  const [details, setDetails] = useState('')
   const [image, setImage] = useState(null)
 
   const navigation = useNavigation()
@@ -29,7 +32,8 @@ export default function AddIdeaScreen({ route }) {
         <TouchableOpacity
           style={{ marginRight: 15 }}
           onPress={() => {
-            navigation.navigate('People')
+            addIdea(person.id, name, details, image)
+            navigation.goBack()
           }}
         >
           <View>
@@ -56,7 +60,6 @@ export default function AddIdeaScreen({ route }) {
     try {
       const photo = await cameraRef.current.takePictureAsync()
       setImage(photo.uri)
-      console.log(photo)
     } catch (error) {
       console.log(error)
     }
@@ -66,7 +69,7 @@ export default function AddIdeaScreen({ route }) {
     <SafeAreaProvider>
       <SafeAreaView>
         <View style={styles.container}>
-          <Text style={styles.text}>Add Idea for {person.name}:</Text>
+          <Text style={styles.heading}>Add Idea for {person.name}:</Text>
           <TextInput
             placeholder="Name..."
             value={name}
@@ -74,25 +77,37 @@ export default function AddIdeaScreen({ route }) {
             style={styles.nameInput}
           />
           <TextInput
-            editable
-            multiline
             placeholder="Details..."
-            value={bio}
-            onChangeText={(text) => setBio(text)}
+            value={details}
+            onChangeText={(text) => setDetails(text)}
             style={styles.bioInput}
           />
           {image ? (
-            <Image
-              source={{ uri: image }}
-              style={{ width: 200, height: 200 }}
-            />
-          ) : (
-            <CameraView style={styles.camera} ref={cameraRef} type={type}>
-              <TouchableOpacity onPress={takePicture}>
+            <ImageBackground source={{ uri: image }} style={styles.camera}>
+              <TouchableOpacity onPress={() => setImage(null)}>
                 <View style={styles.pictureButton}>
-                  <Text>Take Picture</Text>
+                  <Text>Retake Picture</Text>
                 </View>
               </TouchableOpacity>
+            </ImageBackground>
+          ) : (
+            <CameraView style={styles.camera} ref={cameraRef} facing={facing}>
+              <View style={styles.cameraButtonContainer}>
+                <TouchableOpacity
+                  onPress={() =>
+                    setFacing(facing === 'back' ? 'front' : 'back')
+                  }
+                >
+                  <View style={styles.pictureButton}>
+                    <Text>Flip Camera</Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={takePicture}>
+                  <View style={styles.pictureButton}>
+                    <Text>Take Photo</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
             </CameraView>
           )}
         </View>
@@ -126,6 +141,12 @@ const styles = StyleSheet.create({
     height: 350,
     borderRadius: 5
   },
+  cameraButtonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 10
+  },
   pictureButton: {
     display: 'flex',
     alignSelf: 'center',
@@ -136,7 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 5
   },
-  text: {
+  heading: {
     fontSize: 24,
     fontWeight: 'bold'
   }
