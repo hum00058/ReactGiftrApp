@@ -76,7 +76,7 @@ export default function IdeaScreen({ route }) {
       <SafeAreaView>
         {person.ideas.length === 0 ? (
           <View style={styles.peopleAlert}>
-            <Text>
+            <Text style={{ marginTop: 250, margin: 20, color: '#999' }}>
               No gift ideas saved yet, press
               <Text style={{ fontWeight: 700 }}> 'Add Idea'</Text> to create.
             </Text>

@@ -137,18 +137,17 @@ export default function PeopleScreen() {
       <SafeAreaView>
         {people.length === 0 ? (
           <View style={styles.peopleAlert}>
-            <Text>
+            <Text style={{ marginTop: 250, margin: 20, color: '#999' }}>
               No people saved yet, press
               <Text style={{ fontWeight: 700 }}> 'Add Person'</Text> to create.
             </Text>
           </View>
-        ) : (
-          <FlatList
-            data={people}
-            keyExtractor={(item) => item.id}
-            renderItem={peopleItem}
-          />
-        )}
+        ) : null}
+        <FlatList
+          data={people}
+          keyExtractor={(item) => item.id}
+          renderItem={peopleItem}
+        />
       </SafeAreaView>
     </SafeAreaProvider>
   )

@@ -80,7 +80,7 @@ export default function AddIdeaScreen({ route }) {
             placeholder="Details..."
             value={details}
             onChangeText={(text) => setDetails(text)}
-            style={styles.bioInput}
+            style={styles.detailsInput}
           />
           {image ? (
             <ImageBackground source={{ uri: image }} style={styles.camera}>
@@ -122,16 +122,14 @@ const styles = StyleSheet.create({
   },
   nameInput: {
     height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
+    backgroundColor: '#fff',
     padding: 10,
-    marginVertical: 10,
-    borderRadius: 5
+    borderRadius: 5,
+    marginVertical: 10
   },
-  bioInput: {
+  detailsInput: {
     height: 100,
-    borderColor: 'gray',
-    borderWidth: 1,
+    backgroundColor: '#fff',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10

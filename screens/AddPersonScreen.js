@@ -1,5 +1,12 @@
-import React, { useContext, useState } from 'react'
-import { View, TextInput, Button, StyleSheet } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  Text
+} from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import PeopleContext from '../PeopleContext'
 import { useNavigation } from '@react-navigation/native'
@@ -13,11 +20,46 @@ export default function AddPersonScreen() {
   const { addPerson } = useContext(PeopleContext)
   const navigation = useNavigation()
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: 'Add Person',
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 15 }}
+          onPress={() => {
+            Alert.alert(
+              'Save Person',
+              'Are you sure you want to save this person?',
+              [
+                {
+                  text: 'Cancel',
+                  style: 'cancel'
+                },
+                {
+                  text: 'Save',
+                  onPress: () => savePerson()
+                }
+              ]
+            )
+          }}
+        >
+          <View>
+            <Text>Save Person</Text>
+          </View>
+        </TouchableOpacity>
+      )
+    })
+  }, [name, dob])
+
   const savePerson = () => {
-    if (name && dob) {
+    console.log(name)
+    if (name) {
       const formattedDob = dob.toISOString().split('T')[0]
       addPerson(name, formattedDob)
       navigation.goBack()
+    } else {
+      Alert.alert('Name is required', 'Please enter a name for this person')
+      return
     }
   }
 
@@ -35,17 +77,18 @@ export default function AddPersonScreen() {
             onChangeText={setName}
             style={styles.input}
           />
-          <DateTimePicker
-            value={dob}
-            mode="date"
-            display="default"
-            onChange={onChange}
-            style={styles.datePicker}
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button title="Cancel" onPress={() => navigation.goBack()} />
-          <Button title="Save" onPress={savePerson} />
+          <View style={styles.dateContainer}>
+            <Text style={{ fontWeight: '500', color: '#999' }}>
+              Date of Birth |
+            </Text>
+            <DateTimePicker
+              value={dob}
+              mode="date"
+              display="default"
+              onChange={onChange}
+              style={styles.datePicker}
+            />
+          </View>
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -56,19 +99,26 @@ const styles = StyleSheet.create({
   infoContainer: {
     display: 'flex',
     justifyContent: 'space-between',
-    flexDirection: 'row'
+    flexDirection: 'column',
+    marginTop: 100,
+    marginHorizontal: 20
   },
-  buttonContainer: {
+  dateContainer: {
     display: 'flex',
-    justifyContent: 'space-around',
-    flexDirection: 'row'
+    marginHorizontal: 'auto',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   input: {
     height: 40,
-    margin: 12
+    margin: 12,
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 5
   },
   datePicker: {
-    alignSelf: 'center',
-    margin: 12
+    display: 'flex',
+    marginHorizontal: 'auto'
   }
 })
